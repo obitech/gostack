@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+version: "2"
+
+run:
+  timeout: 5m
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+linters:
+  default: none
+  enable:
+    # Bugs & correctness
+    - errcheck        # Check for unchecked errors
+    - gosec           # Security issues
+    - staticcheck     # Go static analysis
+    - govet           # Go vet checks
+    - bodyclose       # HTTP response body not closed
+    - nilerr          # Return nil when err is not nil
+    - sqlclosecheck   # SQL rows/stmt not closed
+
+    # Error handling (per project conventions: annotate all errors)
+    - errorlint       # Proper error wrapping and comparison
+    - wrapcheck       # Errors from external packages should be wrapped
+
+    # Code quality
+    - ineffassign     # Detects useless assignments
+    - unused          # Unused code
+    - unconvert       # Unnecessary type conversions
+    - unparam         # Unused function parameters
+    - copyloopvar     # Loop variable issues
+
+    # Style & consistency
+    - misspell        # Spelling mistakes in comments
+    - revive          # Extensible linter (replaces golint)
+    - godot           # Comments should end with a period
+
+    # Complexity
+    - gocyclo         # Cyclomatic complexity
+    - gocognit        # Cognitive complexity
+
+    # Performance
+    - gocritic        # Opinionated linter with performance checks
+
+  settings:
+    gocyclo:
+      min-complexity: 15
+
+    gocognit:
+      min-complexity: 20
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+        - style
+      disabled-checks:
+        - whyNoLint  # Don't require explanations for nolint
+
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+          arguments:
+            - checkPrivateReceivers
+            - sayRepetitiveInsteadOfStutters
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unreachable-code
+
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+      ignore-package-globs:
+        - github.com/obitech/gostack/*  # Internal packages don't need wrapping
+
+    errorlint:
+      errorf: true
+      errorf-multi: true
+      asserts: true
+      comparison: true
+
+    godot:
+      scope: declarations  # Only check exported declarations
+      capital: true
+
+    misspell:
+      locale: US
+
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      # Test files can be more relaxed
+      - path: _test\.go
+        linters:
+          - wrapcheck
+          - errcheck
+          - gocritic
+          - gocyclo
+          - gocognit
+
+      # Main files often have simple error handling
+      - path: cmd/
+        linters:
+          - wrapcheck
+
+      # Generated code
+      - path: ".*\\.gen\\.go$"
+        linters:
+          - all

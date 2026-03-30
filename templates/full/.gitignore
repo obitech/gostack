@@ -18,7 +18,8 @@ vendor/
 web/node_modules/
 
 # Frontend build output (rebuild with `make build-web`)
-web/dist/
+web/dist/*
+!web/dist/.gitkeep
 
 # IDE
 .idea/

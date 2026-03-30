@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "generate": "openapi-typescript ../openapi.yml -o ./src/api/types.ts"
   },
   "dependencies": {

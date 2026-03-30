@@ -31,7 +31,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v2.11.4
 
   # ──────────────────────────────────────────────────────────────
   # Full-stack template (templates/full module)
@@ -61,7 +61,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v2.11.4
           working-directory: templates/full
 
   template-frontend:

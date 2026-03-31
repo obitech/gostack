@@ -31,7 +31,7 @@ func generateOpenAPI() error {
 	}
 
 	if outputFile != "" {
-		if err := os.WriteFile(outputFile, yaml, 0o644); err != nil {
+		if err := os.WriteFile(outputFile, yaml, 0o600); err != nil {
 			return fmt.Errorf("writing to file %s: %w", outputFile, err)
 		}
 		return nil

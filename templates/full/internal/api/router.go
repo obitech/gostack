@@ -20,8 +20,8 @@ import (
 )
 
 // NewRouter creates and configures the HTTP router with all routes registered.
-// corsOrigins is a list of allowed CORS origins; if empty, CORS middleware is not applied.
-// requestTimeout is the per-request deadline; if zero, no timeout is applied.
+// CorsOrigins is a list of allowed CORS origins; if empty, CORS middleware is not applied.
+// RequestTimeout is the per-request deadline; if zero, no timeout is applied.
 func NewRouter(
 	logger *slog.Logger,
 	h *Handler,

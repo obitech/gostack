@@ -1,4 +1,4 @@
-name: CI
+name: test
 
 on:
   push:
@@ -97,3 +97,25 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t gostack-template:ci templates/full
+
+  # ──────────────────────────────────────────────────────────────
+  # GoReleaser config validation
+  # ──────────────────────────────────────────────────────────────
+  check-goreleaser:
+    name: GoReleaser check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.1"
+          cache: true
+
+      - name: Check GoReleaser config
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "v2.15.1"
+          args: check

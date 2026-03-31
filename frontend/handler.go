@@ -40,11 +40,11 @@ func newDevProxy(devServerURL string) (http.Handler, error) {
 		return nil, fmt.Errorf("parsing dev server URL: %w", err)
 	}
 
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	originalDirector := proxy.Director
-	proxy.Director = func(req *http.Request) {
-		originalDirector(req)
-		req.Host = target.Host
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(r *httputil.ProxyRequest) {
+			r.SetURL(target)
+			r.Out.Host = target.Host
+		},
 	}
 
 	return proxy, nil

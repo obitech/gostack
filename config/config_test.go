@@ -164,10 +164,18 @@ func TestLoad_FlagOverride(t *testing.T) {
 
 func TestLoad_EnvOverride(t *testing.T) {
 	// Set environment variables
-	os.Setenv("STRING_VAL", "env-override")
-	os.Setenv("INT_VAL", "123")
-	os.Setenv("BOOL_VAL", "false")
-	os.Setenv("DURATION_VAL", "2h")
+	if err := os.Setenv("STRING_VAL", "env-override"); err != nil {
+		t.Fatalf("os.Setenv: %v", err)
+	}
+	if err := os.Setenv("INT_VAL", "123"); err != nil {
+		t.Fatalf("os.Setenv: %v", err)
+	}
+	if err := os.Setenv("BOOL_VAL", "false"); err != nil {
+		t.Fatalf("os.Setenv: %v", err)
+	}
+	if err := os.Setenv("DURATION_VAL", "2h"); err != nil {
+		t.Fatalf("os.Setenv: %v", err)
+	}
 	defer func() {
 		os.Unsetenv("STRING_VAL")
 		os.Unsetenv("INT_VAL")
@@ -207,7 +215,9 @@ func TestLoad_EnvOverride(t *testing.T) {
 
 func TestLoad_FlagTakesPrecedenceOverEnv(t *testing.T) {
 	// Set environment variable
-	os.Setenv("STRING_VAL", "env-value")
+	if err := os.Setenv("STRING_VAL", "env-value"); err != nil {
+		t.Fatalf("os.Setenv: %v", err)
+	}
 	defer os.Unsetenv("STRING_VAL")
 
 	cmd := newTestCommand()
@@ -245,7 +255,9 @@ func TestLoad_InvalidEnvValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv(tt.envKey, tt.envVal)
+			if err := os.Setenv(tt.envKey, tt.envVal); err != nil {
+				t.Fatalf("os.Setenv: %v", err)
+			}
 			defer os.Unsetenv(tt.envKey)
 
 			cmd := newTestCommand()

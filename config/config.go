@@ -65,12 +65,12 @@ func RegisterFlags(cmd *cobra.Command, cfg any) error {
 
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
-		info := parseFieldTags(field)
+		info := parseFieldTags(&field)
 		if info.flagName == "" {
 			continue // skip fields without flag tag
 		}
 
-		if err := registerFlag(cmd, field.Type, info); err != nil {
+		if err := registerFlag(cmd, field.Type, &info); err != nil {
 			return fmt.Errorf("registering flag for field %s: %w", field.Name, err)
 		}
 	}
@@ -95,13 +95,13 @@ func Load(cmd *cobra.Command, cfg any) error {
 
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
-		info := parseFieldTags(field)
+		info := parseFieldTags(&field)
 		if info.flagName == "" {
 			continue // skip fields without flag tag
 		}
 
 		fieldVal := structVal.Field(i)
-		if err := loadFieldValue(cmd, field.Type, fieldVal, info); err != nil {
+		if err := loadFieldValue(cmd, field.Type, fieldVal, &info); err != nil {
 			return fmt.Errorf("loading value for field %s: %w", field.Name, err)
 		}
 	}
@@ -110,7 +110,7 @@ func Load(cmd *cobra.Command, cfg any) error {
 }
 
 // parseFieldTags extracts configuration from struct field tags.
-func parseFieldTags(field reflect.StructField) fieldInfo {
+func parseFieldTags(field *reflect.StructField) fieldInfo {
 	info := fieldInfo{}
 
 	flagTag := field.Tag.Get("flag")
@@ -132,76 +132,86 @@ func parseFieldTags(field reflect.StructField) fieldInfo {
 }
 
 // registerFlag registers a single flag based on field type.
-func registerFlag(cmd *cobra.Command, fieldType reflect.Type, info fieldInfo) error {
-	flags := cmd.Flags()
-
+func registerFlag(cmd *cobra.Command, fieldType reflect.Type, info *fieldInfo) error {
 	switch fieldType.Kind() {
 	case reflect.String:
-		if info.shorthand != "" {
-			flags.StringP(info.flagName, info.shorthand, info.defaultVal, info.desc)
-		} else {
-			flags.String(info.flagName, info.defaultVal, info.desc)
-		}
-
+		registerStringFlag(cmd, info)
+		return nil
 	case reflect.Int:
-		defaultInt := 0
-		if info.defaultVal != "" {
-			var err error
-			defaultInt, err = strconv.Atoi(info.defaultVal)
-			if err != nil {
-				return fmt.Errorf("parsing default int value %q: %w", info.defaultVal, err)
-			}
-		}
-		if info.shorthand != "" {
-			flags.IntP(info.flagName, info.shorthand, defaultInt, info.desc)
-		} else {
-			flags.Int(info.flagName, defaultInt, info.desc)
-		}
-
+		return registerIntFlag(cmd, info)
 	case reflect.Bool:
-		defaultBool := false
-		if info.defaultVal != "" {
-			var err error
-			defaultBool, err = strconv.ParseBool(info.defaultVal)
-			if err != nil {
-				return fmt.Errorf("parsing default bool value %q: %w", info.defaultVal, err)
-			}
-		}
-		if info.shorthand != "" {
-			flags.BoolP(info.flagName, info.shorthand, defaultBool, info.desc)
-		} else {
-			flags.Bool(info.flagName, defaultBool, info.desc)
-		}
-
+		return registerBoolFlag(cmd, info)
 	case reflect.Int64:
-		if fieldType == reflect.TypeOf(time.Duration(0)) {
-			defaultDuration := time.Duration(0)
-			if info.defaultVal != "" {
-				var err error
-				defaultDuration, err = time.ParseDuration(info.defaultVal)
-				if err != nil {
-					return fmt.Errorf("parsing default duration value %q: %w", info.defaultVal, err)
-				}
-			}
-			if info.shorthand != "" {
-				flags.DurationP(info.flagName, info.shorthand, defaultDuration, info.desc)
-			} else {
-				flags.Duration(info.flagName, defaultDuration, info.desc)
-			}
-		} else {
-			return fmt.Errorf("unsupported field type: %s", fieldType)
-		}
-
+		return registerInt64Flag(cmd, fieldType, info)
 	default:
 		return fmt.Errorf("unsupported field type: %s", fieldType)
 	}
+}
 
+func registerStringFlag(cmd *cobra.Command, info *fieldInfo) {
+	if info.shorthand != "" {
+		cmd.Flags().StringP(info.flagName, info.shorthand, info.defaultVal, info.desc)
+	} else {
+		cmd.Flags().String(info.flagName, info.defaultVal, info.desc)
+	}
+}
+
+func registerIntFlag(cmd *cobra.Command, info *fieldInfo) error {
+	defaultInt := 0
+	if info.defaultVal != "" {
+		var err error
+		defaultInt, err = strconv.Atoi(info.defaultVal)
+		if err != nil {
+			return fmt.Errorf("parsing default int value %q: %w", info.defaultVal, err)
+		}
+	}
+	if info.shorthand != "" {
+		cmd.Flags().IntP(info.flagName, info.shorthand, defaultInt, info.desc)
+	} else {
+		cmd.Flags().Int(info.flagName, defaultInt, info.desc)
+	}
+	return nil
+}
+
+func registerBoolFlag(cmd *cobra.Command, info *fieldInfo) error {
+	defaultBool := false
+	if info.defaultVal != "" {
+		var err error
+		defaultBool, err = strconv.ParseBool(info.defaultVal)
+		if err != nil {
+			return fmt.Errorf("parsing default bool value %q: %w", info.defaultVal, err)
+		}
+	}
+	if info.shorthand != "" {
+		cmd.Flags().BoolP(info.flagName, info.shorthand, defaultBool, info.desc)
+	} else {
+		cmd.Flags().Bool(info.flagName, defaultBool, info.desc)
+	}
+	return nil
+}
+
+func registerInt64Flag(cmd *cobra.Command, fieldType reflect.Type, info *fieldInfo) error {
+	if fieldType != reflect.TypeOf(time.Duration(0)) {
+		return fmt.Errorf("unsupported field type: %s", fieldType)
+	}
+	defaultDuration := time.Duration(0)
+	if info.defaultVal != "" {
+		var err error
+		defaultDuration, err = time.ParseDuration(info.defaultVal)
+		if err != nil {
+			return fmt.Errorf("parsing default duration value %q: %w", info.defaultVal, err)
+		}
+	}
+	if info.shorthand != "" {
+		cmd.Flags().DurationP(info.flagName, info.shorthand, defaultDuration, info.desc)
+	} else {
+		cmd.Flags().Duration(info.flagName, defaultDuration, info.desc)
+	}
 	return nil
 }
 
 // loadFieldValue loads a value into the field using flag > env > default priority.
-func loadFieldValue(cmd *cobra.Command, fieldType reflect.Type, fieldVal reflect.Value, info fieldInfo) error {
-	// Check if flag was explicitly set
+func loadFieldValue(cmd *cobra.Command, fieldType reflect.Type, fieldVal reflect.Value, info *fieldInfo) error {
 	flagChanged := cmd.Flags().Changed(info.flagName)
 
 	switch fieldType.Kind() {
@@ -245,22 +255,34 @@ func loadFieldValue(cmd *cobra.Command, fieldType reflect.Type, fieldVal reflect
 }
 
 // getStringValue returns the string value with flag > env > default priority.
-func getStringValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (string, error) {
+func getStringValue(cmd *cobra.Command, info *fieldInfo, flagChanged bool) (string, error) {
 	if flagChanged {
-		return cmd.Flags().GetString(info.flagName)
+		val, err := cmd.Flags().GetString(info.flagName)
+		if err != nil {
+			return "", fmt.Errorf("getting flag %s: %w", info.flagName, err)
+		}
+		return val, nil
 	}
 	if info.envKey != "" {
 		if envVal := os.Getenv(info.envKey); envVal != "" {
 			return envVal, nil
 		}
 	}
-	return cmd.Flags().GetString(info.flagName)
+	val, err := cmd.Flags().GetString(info.flagName)
+	if err != nil {
+		return "", fmt.Errorf("getting flag %s: %w", info.flagName, err)
+	}
+	return val, nil
 }
 
 // getIntValue returns the int value with flag > env > default priority.
-func getIntValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (int, error) {
+func getIntValue(cmd *cobra.Command, info *fieldInfo, flagChanged bool) (int, error) {
 	if flagChanged {
-		return cmd.Flags().GetInt(info.flagName)
+		val, err := cmd.Flags().GetInt(info.flagName)
+		if err != nil {
+			return 0, fmt.Errorf("getting flag %s: %w", info.flagName, err)
+		}
+		return val, nil
 	}
 	if info.envKey != "" {
 		if envVal := os.Getenv(info.envKey); envVal != "" {
@@ -271,13 +293,21 @@ func getIntValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (int, err
 			return parsed, nil
 		}
 	}
-	return cmd.Flags().GetInt(info.flagName)
+	val, err := cmd.Flags().GetInt(info.flagName)
+	if err != nil {
+		return 0, fmt.Errorf("getting flag %s: %w", info.flagName, err)
+	}
+	return val, nil
 }
 
 // getBoolValue returns the bool value with flag > env > default priority.
-func getBoolValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (bool, error) {
+func getBoolValue(cmd *cobra.Command, info *fieldInfo, flagChanged bool) (bool, error) {
 	if flagChanged {
-		return cmd.Flags().GetBool(info.flagName)
+		val, err := cmd.Flags().GetBool(info.flagName)
+		if err != nil {
+			return false, fmt.Errorf("getting flag %s: %w", info.flagName, err)
+		}
+		return val, nil
 	}
 	if info.envKey != "" {
 		if envVal := os.Getenv(info.envKey); envVal != "" {
@@ -288,13 +318,21 @@ func getBoolValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (bool, e
 			return parsed, nil
 		}
 	}
-	return cmd.Flags().GetBool(info.flagName)
+	val, err := cmd.Flags().GetBool(info.flagName)
+	if err != nil {
+		return false, fmt.Errorf("getting flag %s: %w", info.flagName, err)
+	}
+	return val, nil
 }
 
 // getDurationValue returns the duration value with flag > env > default priority.
-func getDurationValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (time.Duration, error) {
+func getDurationValue(cmd *cobra.Command, info *fieldInfo, flagChanged bool) (time.Duration, error) {
 	if flagChanged {
-		return cmd.Flags().GetDuration(info.flagName)
+		val, err := cmd.Flags().GetDuration(info.flagName)
+		if err != nil {
+			return 0, fmt.Errorf("getting flag %s: %w", info.flagName, err)
+		}
+		return val, nil
 	}
 	if info.envKey != "" {
 		if envVal := os.Getenv(info.envKey); envVal != "" {
@@ -305,5 +343,9 @@ func getDurationValue(cmd *cobra.Command, info fieldInfo, flagChanged bool) (tim
 			return parsed, nil
 		}
 	}
-	return cmd.Flags().GetDuration(info.flagName)
+	val, err := cmd.Flags().GetDuration(info.flagName)
+	if err != nil {
+		return 0, fmt.Errorf("getting flag %s: %w", info.flagName, err)
+	}
+	return val, nil
 }

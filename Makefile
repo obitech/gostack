@@ -1,4 +1,4 @@
-.PHONY: test test-race vet lint lint-fix check
+.PHONY: test test-race vet lint lint-fix check release-dry-run release-check
 
 # Test targets
 test:
@@ -20,3 +20,10 @@ lint-fix:
 
 # Run all checks (vet + lint + tests with race detector)
 check: vet lint test-race
+
+# Release targets
+release-dry-run:
+	goreleaser release --snapshot --clean
+
+release-check:
+	goreleaser check

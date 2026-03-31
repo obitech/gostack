@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+# This is a Go library — no binaries to build.
+builds:
+  - skip: true
+
+changelog:
+  sort: asc
+  use: github
+  groups:
+    - title: "Features"
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug Fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Performance"
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: "Documentation"
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: "Build & CI"
+      regexp: '^.*?(build|ci)(\([[:word:]]+\))??!?:.+$'
+      order: 4
+    - title: "Other"
+      order: 999
+  filters:
+    exclude:
+      - "^chore:"
+      - "^style:"
+      - "^test:"
+
+release:
+  github:
+    owner: obitech
+    name: gostack
+  header: |
+    ## Installation
+
+    ```bash
+    go get github.com/obitech/gostack@{{ .Tag }}
+    ```
+  draft: false
+  prerelease: auto

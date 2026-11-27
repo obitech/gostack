@@ -98,6 +98,10 @@ linters:
         - .WithMessage(
         - .WithMessagef(
         - .WithStack(
+      # Huma's error constructors build the HTTP error response. Newer wrapcheck
+      # also reports them because huma.NewError is a package-level var.
+      ignore-sig-regexps:
+        - 'github\.com/danielgtaylor/huma/v2\.(NewError|Error\d{3}\w*)'
 
     errorlint:
       errorf: true

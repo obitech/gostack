@@ -14,12 +14,12 @@ jobs:
     name: Library
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
-          go-version: "1.26.1"
+          go-version: "1.27.4"
           cache: true
 
       - name: Vet
@@ -29,9 +29,9 @@ jobs:
         run: go test -race -count=1 ./...
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.11.4
+          version: v2.15.0
 
   # ──────────────────────────────────────────────────────────────
   # Full-stack template (templates/full module)
@@ -43,12 +43,12 @@ jobs:
       run:
         working-directory: templates/full
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
-          go-version: "1.26.1"
+          go-version: "1.27.4"
           cache: true
           cache-dependency-path: templates/full/go.sum
 
@@ -59,9 +59,9 @@ jobs:
         run: go test -race -count=1 ./...
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.11.4
+          version: v2.15.0
           working-directory: templates/full
 
   template-frontend:
@@ -71,12 +71,12 @@ jobs:
       run:
         working-directory: templates/full/web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "26"
           cache: npm
           cache-dependency-path: templates/full/web/package-lock.json
 
@@ -93,7 +93,7 @@ jobs:
     name: Template / Docker build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build Docker image
         run: docker build -t gostack-template:ci templates/full
@@ -105,17 +105,17 @@ jobs:
     name: GoReleaser check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
-          go-version: "1.26.1"
+          go-version: "1.27.4"
           cache: true
 
       - name: Check GoReleaser config
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: "v2.15.1"
+          version: "v2.20.3"
           args: check

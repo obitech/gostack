@@ -6,7 +6,7 @@ function App() {
           Welcome to Your App
         </h1>
         <p className="text-gray-600">
-          Edit <code className="bg-gray-200 px-1 rounded">src/App.tsx</code> to get started.
+          Edit <code className="bg-gray-200 px-1 rounded-sm">src/App.tsx</code> to get started.
         </p>
       </div>
     </div>

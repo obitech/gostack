@@ -29,7 +29,7 @@ build: build-web
 	go build -o bin/$(APP_NAME) ./cmd/cli
 
 build-web:
-	cd web && npm run build
+	cd web && pnpm run build
 
 build-docker:
 	docker build -t $(APP_NAME) .
@@ -39,7 +39,7 @@ test:
 	go test -v ./...
 
 test-web:
-	cd web && npm test
+	cd web && pnpm test
 
 test-integration:
 	go test -v -tags=integration ./...
@@ -66,4 +66,4 @@ vet:
 # Code generation
 generate:
 	go run ./cmd/cli generate-openapi > openapi.yml
-	cd web && npm run generate
+	cd web && pnpm run generate

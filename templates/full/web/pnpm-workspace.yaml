@@ -1,0 +1,6 @@
+# Dependency install scripts pnpm may run. pnpm fails the install for any
+# script that is neither allowed nor denied here.
+allowBuilds:
+  # Jest's file watcher. Its install script only compiles from source when no
+  # prebuilt binary fits; prebuilt ones ship for macOS and Linux (glibc, musl).
+  '@parcel/watcher': false

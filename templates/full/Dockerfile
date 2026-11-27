@@ -1,10 +1,13 @@
 # Stage 1: Build frontend
 FROM node:26-alpine AS frontend-builder
 WORKDIR /app/web
-COPY web/package.json web/package-lock.json ./
-RUN npm ci
+COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
+# Node 25+ no longer ships Corepack, so install the pnpm version pinned in
+# package.json's packageManager field.
+RUN npm install -g "$(node -p "require('./package.json').packageManager")" && \
+    pnpm install --frozen-lockfile
 COPY web/ ./
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Build Go binary
 FROM golang:1.27.4-alpine AS builder

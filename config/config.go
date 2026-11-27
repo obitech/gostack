@@ -56,7 +56,7 @@ type fieldInfo struct {
 // Supported field types: string, int, bool, time.Duration.
 func RegisterFlags(cmd *cobra.Command, cfg any) error {
 	v := reflect.ValueOf(cfg)
-	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
+	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("config must be a pointer to a struct, got %T", cfg)
 	}
 
@@ -86,7 +86,7 @@ func RegisterFlags(cmd *cobra.Command, cfg any) error {
 // The cfg parameter must be a pointer to the same struct passed to RegisterFlags.
 func Load(cmd *cobra.Command, cfg any) error {
 	v := reflect.ValueOf(cfg)
-	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
+	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("config must be a pointer to a struct, got %T", cfg)
 	}
 

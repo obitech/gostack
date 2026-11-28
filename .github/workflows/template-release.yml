@@ -1,0 +1,49 @@
+name: template-release
+
+# Validates a templates/full/vX.Y.Z tag: the template must require the
+# matching library version and build outside the go.work workspace.
+on:
+  push:
+    tags:
+      - "templates/full/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify template tag
+    runs-on: ubuntu-latest
+    env:
+      GOWORK: "off"
+    defaults:
+      run:
+        working-directory: templates/full
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.27.4"
+          cache: true
+          cache-dependency-path: templates/full/go.sum
+
+      - name: Check gostack requirement matches tag
+        run: |
+          want="${GITHUB_REF_NAME#templates/full/}"
+          got="$(go list -m -f '{{.Version}}' github.com/obitech/gostack)"
+          if [ "$got" != "$want" ]; then
+            echo "::error::templates/full requires github.com/obitech/gostack $got, but the tag is $want"
+            exit 1
+          fi
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -race -count=1 ./...

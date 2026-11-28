@@ -39,6 +39,10 @@ jobs:
   template-go:
     name: Template / Go
     runs-on: ubuntu-latest
+    # Build against the gostack version the template requires, not the local
+    # library from go.work. That is what a scaffolded app gets.
+    env:
+      GOWORK: "off"
     defaults:
       run:
         working-directory: templates/full

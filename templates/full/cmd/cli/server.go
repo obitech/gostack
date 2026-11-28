@@ -14,13 +14,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/example/app/internal/api"
-	"github.com/example/app/internal/database"
-	"github.com/example/app/web"
 	"github.com/obitech/gostack/config"
 	"github.com/obitech/gostack/frontend"
 	golog "github.com/obitech/gostack/log"
 	"github.com/obitech/gostack/metrics"
+	"github.com/obitech/gostack/templates/full/internal/api"
+	"github.com/obitech/gostack/templates/full/internal/database"
+	"github.com/obitech/gostack/templates/full/web"
 )
 
 // ServerConfig defines all configuration options for the server command.

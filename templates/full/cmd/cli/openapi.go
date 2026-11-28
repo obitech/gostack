@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/example/app/internal/api"
+	"github.com/obitech/gostack/templates/full/internal/api"
 )
 
 var outputFile string

@@ -24,6 +24,14 @@ jobs:
           go-version: "1.27.4"
           cache: true
 
+      # templates/full/vX.Y.Z tags live in the same repo. Pin the current and
+      # previous tag to library tags so GoReleaser never picks a template tag.
+      - name: Resolve tags
+        id: tags
+        run: |
+          echo "current=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          echo "previous=$(git describe --tags --abbrev=0 --match 'v*' "${GITHUB_REF_NAME}^" 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
@@ -32,3 +40,5 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ steps.tags.outputs.current }}
+          GORELEASER_PREVIOUS_TAG: ${{ steps.tags.outputs.previous }}

@@ -1,4 +1,4 @@
-module github.com/example/app
+module github.com/obitech/gostack/templates/full
 
 go 1.27.4
 
@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/cors v1.2.2
 	github.com/golang-migrate/migrate/v4 v4.20.1
 	github.com/jackc/pgx/v5 v5.13.0
-	github.com/obitech/gostack v0.1.2
+	github.com/obitech/gostack v0.2.0
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	gopkg.in/yaml.v3 v3.0.1

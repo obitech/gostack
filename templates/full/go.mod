@@ -1,4 +1,4 @@
-module github.com/example/app
+module github.com/obitech/gostack/templates/full
 
 go 1.27.4
 

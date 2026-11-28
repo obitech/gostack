@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/example/app/internal/api"
+	"github.com/obitech/gostack/templates/full/internal/api"
 )
 
 func TestHandler_Liveness(t *testing.T) {

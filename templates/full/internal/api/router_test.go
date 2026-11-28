@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/example/app/internal/api"
+	"github.com/obitech/gostack/templates/full/internal/api"
 )
 
 // newTestRouter creates a minimal router for testing without a database or frontend.

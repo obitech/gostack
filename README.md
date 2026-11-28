@@ -146,8 +146,12 @@ Use `gonew` to create new projects from templates:
 
 ```bash
 # Full-stack (Go API + Database + React frontend)
-gonew github.com/obitech/gostack/templates/full github.com/you/myapp
+gonew github.com/obitech/gostack/templates/full@latest github.com/you/myapp
 ```
+
+Every library release `vX.Y.Z` has a matching template tag `templates/full/vX.Y.Z`,
+and that template requires library `vX.Y.Z`. To pin a release, use
+`gonew github.com/obitech/gostack/templates/full@vX.Y.Z github.com/you/myapp`.
 
 ## License
 

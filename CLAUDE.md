@@ -13,11 +13,14 @@ gostack/
 ```
 
 The **root module** (`github.com/obitech/gostack`) is the importable library.
-The **template** (`templates/full/`, module `github.com/example/app`) is scaffolded via:
+The **template** (`templates/full/`, module `github.com/obitech/gostack/templates/full`) is scaffolded via:
 
 ```sh
-gonew github.com/obitech/gostack/templates/full github.com/yourorg/yourapp
+gonew github.com/obitech/gostack/templates/full@latest github.com/yourorg/yourapp
 ```
+
+The template's module path must stay equal to its location in the repo. gonew only
+rewrites imports of the source module path.
 
 ## Development
 
@@ -42,6 +45,18 @@ make generate             # regenerate openapi.yml + TypeScript types
 make start                # docker compose up (postgres + api)
 make stop                 # docker compose down
 ```
+
+### Releasing
+
+```sh
+make release VERSION=vX.Y.Z           # tag library, open PR bumping the template's gostack requirement
+make release-template VERSION=vX.Y.Z  # after merging that PR: tag templates/full/vX.Y.Z
+```
+
+`go.work` hides the template's real `gostack` requirement inside the repo. CI's
+`template-go` job runs with `GOWORK=off`, so the template must build against the
+library version it requires. A change that needs unreleased library API therefore has
+to wait for a library release.
 
 ## Architecture decisions
 
